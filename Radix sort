@@ -1,0 +1,171 @@
+//(Radix Sort)
+//Radix sort is a sorting algorithm, which sorts the keys based on the values of digits in keys. It takes a queue containing n keys to be sorted, where each key consists of k
+//number of digits, and there could be m possible values for each digit 0 through m-1. Radix sort uses an array consisting of (m) queues for sorting of these keys. For example, 
+//if each key contains k = 3 digits and each individual digit has m=10 possible values 0 to 9, then it will use an array consisting of 10 queues 0-9
+//in the sorting process of considering all digits one by one. You have to implement two Radix sorts which can sort integer and string keys with any value of n and k.
+
+#include<iostream>
+#include<vector>
+
+#include<string>
+
+using namespace std;
+
+template <class T>
+class queue {
+private:
+
+    struct Node {
+        T data;
+        Node* next;
+
+        Node(const T& value) {
+            data = value; 
+            next = nullptr; 
+        }
+    };
+
+    Node* front;
+    Node* rear;
+    int size;
+
+public:
+    queue() : front(nullptr), rear(nullptr), size(0) {}
+
+
+    void push(const T& value) {
+        Node* newNode = new Node(value);
+        if (rear == nullptr) {
+            front = rear = newNode;
+        }
+        else {
+            rear->next = newNode;
+            rear = newNode;
+        }
+        size++;
+    }
+
+    void pop() {
+        if (empty()) {
+            return;
+        }
+
+        Node* temp = front;
+        front = front->next;
+        delete temp;
+        size--;
+        if (front == nullptr) {
+            rear = nullptr;
+        }
+    }
+
+    T& Front() {
+        if (empty()) {
+            cout << "Queue is empty" << endl;
+        }
+        return front->data;
+    }
+
+    bool empty() {
+        if (size == 0)
+            return true;
+        else
+            return false;
+    }
+
+    int getSize() {
+        return size;
+    }
+};
+
+
+
+int getDigit(int num, int pos) {
+
+    int curr = (num / static_cast<int>(pow(10, pos))) % 10;   //get integer at specific position
+    return curr;
+}
+
+
+void radixSortInt(vector<int>& arr, int k, int m) {          //function to sort integers
+
+    vector<queue<int>> queues(m);
+
+
+    for (int pos = 0; pos < k; pos++) {
+
+        // Distributing keys into queues
+        for (int key : arr) {
+            int digit = getDigit(key, pos);
+            queues[digit].push(key);
+        }
+
+
+        // Collecting keys from the queues
+        int index = 0;
+        for (queue<int>& q : queues) {
+            while (!q.empty()) {
+                arr[index++] = q.Front();
+                q.pop();
+            }
+        }
+    }
+}
+
+
+char getChar(const string & str, int pos) {
+    if (pos < str.length()) {
+        return str[pos];                // get the character at a specific position for strings
+    }
+
+    else {
+        char null_char = '\0';
+        return null_char;            // return null character if position is greater than string length
+    }
+}
+
+
+void radixSortStr(vector<string>& arr, int k, int m) {         // funcion to sort strings
+
+    vector<queue<string>> queues(m);
+
+
+    for (int pos = k - 1; pos >= 0; pos--) {
+
+        // Distributing keys into queues
+        for (const string& key : arr) {
+            char character = getChar(key, pos);
+            queues[/*static_cast<int>*/(character)].push(key);
+        }
+
+
+        // Collecting keys from the queues
+        int index = 0;
+        for (queue<string>& q : queues) {
+            while (!q.empty()) {
+                arr[index++] = q.Front();
+                q.pop();
+            }
+        }
+    }
+}
+
+int main() {
+ 
+    vector<int> intKeys = { 170, 45, 75, 41, 90, 802, 24, 2, 66 };
+    radixSortInt(intKeys, 3, 10);
+    cout << "Integers after radix sort:";
+    for (int key : intKeys) {
+        cout << " " << key;
+    }
+ 
+    cout << endl << endl;
+
+    vector<string> strKeys = { "so", "beautiful", "so", "elegant", "just", "looking", "like", "a", "wow" };
+    radixSortStr(strKeys, 8, 128);
+    cout << "Strings after radix sort:";
+    for (const string& key : strKeys) {
+        cout << " " << key;
+    }
+    cout << endl;
+}
