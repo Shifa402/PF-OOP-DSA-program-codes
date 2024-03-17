@@ -1,0 +1,142 @@
+Create a class called UndoStack. This stack is intended to be used for the undo operation in another application. It
+should have the property that it remembers at most the last 100 elements pushed into it. So, for example, if
+there were 101 push operations it would “forget” the oldest of these and if a pop happens the 2nd pushed
+element will be popped, etc. Write complete C++ code for this class.
+
+#include<iostream>
+using namespace std;
+
+template<class T>
+class Undo_Stack {
+	class Node {
+	public:
+		T data;
+		Node* next;
+	public:
+		Node(T val) {
+			data = val;
+			next = nullptr;
+		}
+	};
+
+public:
+	Node* top_node;
+	int size;
+public:
+
+	Undo_Stack() {             //default constructor
+		top_node = nullptr;
+		size = 0;
+	}
+
+	~Undo_Stack() {            //destructor
+		while (!is_empty()) {
+			pop();
+		}
+	}
+
+	int Size() {
+		return size;
+	}
+
+	bool is_empty() {
+		if (top_node == nullptr) {
+			return true;
+		}
+		else { return false; }
+	}
+
+	void pop() {                   //pop() to remove topmost element
+		if (!is_empty()) {
+			Node* temp = top_node;
+			top_node = top_node->next;
+			delete temp;
+			size--;
+		}
+	}
+
+	void push(T val) {             //to insert elements
+		Node* temp = new Node(val);
+		temp->next = top_node;
+		top_node = temp;
+		size++;
+	}
+
+	int top_val() {
+		if (!is_empty()) {
+			int top_value = top_node->data;
+			return top_value;
+		}
+
+	}
+
+	void display_stack() {
+		Node* temp = top_node;
+		while (temp->next != nullptr) {
+			cout << temp->data << " -> ";
+			temp = temp->next;
+			if (temp->next == nullptr) {
+				cout << temp->data;
+			}
+		}
+		cout << " -> null";
+	}
+
+	void reverse_stack(Undo_Stack<T>& st) {
+		while (!st.is_empty()) {
+			int temp = st.top_val();
+			push(temp);
+			st.pop();
+		}
+		//now stack st is empty but stack new_st has stored its elements in a reversed list
+	}
+
+	void remove_elements(int n) {
+		int diff = n - 100;        //diff stores the number of extra elements needed to be removed 
+
+		for (int i = 0; i < diff; i++) {
+			pop();
+		}
+	}
+};
+
+
+int main() {
+	Undo_Stack<int>st;
+
+	int n;
+	cout << "enter a positive value: ";
+	cin >> n;
+	cout << endl;
+
+	for (int i = 1; i <= n; i++) {
+		st.push(i);
+	}
+
+	cout << "elements of stack initially: " << endl;
+	st.display_stack();
+	cout << endl << endl;
+
+	if (n > 0 && n <= 100) {
+		cout << "no further operation." << endl;
+	}
+
+
+	if (n > 100) {                  // if value of n is >100, then create a new stack and store the reversed list of the old stack in it
+		Undo_Stack<int> new_st;
+		new_st.reverse_stack(st);
+
+		//cout << "reverse of given stack:" << endl;
+		//new_st.display_stack();     //displaying the new stack will give the old stack with the values reversed 
+		//cout << endl << endl;
+
+		cout << "after reducing stack to 100 elements: " << endl;
+		new_st.remove_elements(n);  // function to remove elements from stack new_st
+		st.reverse_stack(new_st);   // reverse of stack new_st is stored in stack st and then new_st is emptied
+		st.display_stack();
+		cout << endl << endl;
+		cout << "after one more pop: " << endl;
+		st.pop();                    //pop extra element
+		st.display_stack();         //now display stack st with desired elements removed
+	}
+}
