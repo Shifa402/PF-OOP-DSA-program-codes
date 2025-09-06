@@ -1,2 +1,2 @@
-# DSA-program-codes
+# Program-codes
 This repository includes different C++ DS, PF, and OOP programming questions along with their program codes.
